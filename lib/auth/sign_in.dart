@@ -1,5 +1,8 @@
+import 'package:e_retrieval/components/delegatedForm.dart';
 import 'package:e_retrieval/components/delegatedText.dart';
+import 'package:e_retrieval/controller/loginController.dart';
 import 'package:e_retrieval/utils/constant.dart';
+import 'package:e_retrieval/utils/form_validators.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
@@ -16,7 +19,7 @@ class SignIn extends StatefulWidget {
 }
 
 class _SignInState extends State<SignIn> {
-  // LoginController loginController = Get.put(LoginController());
+  LoginController loginController = Get.put(LoginController());
   @override
   Widget build(BuildContext context) {
     return SafeArea(
@@ -35,7 +38,8 @@ class _SignInState extends State<SignIn> {
                     width: 150,
                   ),
                   DelegatedText(
-                    text: 'Welcome back, to eRetrieval, where managing event is made easy!',
+                    text:
+                        'Welcome back, to eRETRIEVAL, where accessing past question is made easy!',
                     fontSize: 20,
                     fontName: 'InterBold',
                   ),
@@ -46,36 +50,30 @@ class _SignInState extends State<SignIn> {
                     fontName: 'InterMed',
                   ),
                   const SizedBox(height: 40),
-
-                  // DelegatedForm(
-                  //   isVisible: false,
-                  //   fieldName: 'Email',
-                  //   icon: Icons.mail,
-                  //   hintText: 'Enter email address',
-                  //   validator: FormValidator.validateEmail,
-                  //   formController: loginController.emailController,
-                  //   isSecured: false,
-                  // ),
-                  // DelegatedForm(
-                  //   isVisible: true,
-                  //   fieldName: 'Password',
-                  //   icon: Icons.password,
-                  //   hintText: 'Enter password',
-                  //   formController: loginController.passwordController,
-                  //   isSecured: true,
-                  // ),
-
+                  delegatedForm(
+                    fieldName: 'RegNum',
+                    icon: Icons.person,
+                    hintText: 'Enter registration number',
+                    validator: FormValidator.validateUsername,
+                    formController: loginController.usernameController,
+                    isSecured: false,
+                  ),
+                  delegatedForm(
+                    fieldName: 'Password',
+                    icon: Icons.password,
+                    hintText: 'Enter password',
+                    formController: loginController.passwordController,
+                    isSecured: true,
+                  ),
                   Padding(
                     padding: const EdgeInsets.only(top: 30.0),
                     child: SizedBox(
                       width: double.infinity,
                       height: 50,
                       child: ElevatedButton(
-                        onPressed: () {
-                          //loginController.signIn()
-                        },
+                        onPressed: () => loginController.signIn(),
                         style: ElevatedButton.styleFrom(
-                            backgroundColor: Constants.secondaryColor,
+                            backgroundColor: Constants.primaryColor,
                             shape: RoundedRectangleBorder(
                                 borderRadius: BorderRadius.circular(25))),
                         child: DelegatedText(text: "Sign in", fontSize: 18),

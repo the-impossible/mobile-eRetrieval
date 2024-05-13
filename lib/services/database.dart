@@ -1,13 +1,20 @@
+import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:e_retrieval/models/past_question.dart';
 import 'package:e_retrieval/models/user_data.dart';
 import 'package:firebase_storage/firebase_storage.dart';
+import 'package:firebase_storage/firebase_storage.dart' as firebase_storage;
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_file_downloader/flutter_file_downloader.dart';
 import 'package:get/get.dart';
 import 'package:http/http.dart' as http;
+import 'package:open_file/open_file.dart';
+import 'package:path_provider/path_provider.dart';
 import '../components/delegatedSnackBar.dart';
+import 'package:permission_handler/permission_handler.dart';
 
 class DatabaseService extends GetxController {
   String? uid;
@@ -20,6 +27,8 @@ class DatabaseService extends GetxController {
   var pastQuestionCollection =
       FirebaseFirestore.instance.collection("PastQuestion");
   var filesCollection = FirebaseStorage.instance.ref();
+  final firebase_storage.FirebaseStorage storage =
+      firebase_storage.FirebaseStorage.instance;
 
   //get user and populate the userData model
   Future<UserData?> getUser(String uid) async {
@@ -37,29 +46,8 @@ class DatabaseService extends GetxController {
   Future<bool> updateProfile(
     String uid,
     String name,
-    String age,
-    String gender,
-    String token,
   ) async {
     usersCollection.doc(uid).update({
-      "age": age,
-      "gender": gender,
-      "name": name,
-      "token": token,
-    });
-    return true;
-  }
-
-  // Update student profile
-  Future<bool> updateStudentProfile(
-    String uid,
-    String name,
-    String age,
-    String gender,
-  ) async {
-    usersCollection.doc(uid).update({
-      "age": age,
-      "gender": gender,
       "name": name,
     });
     return true;
@@ -72,13 +60,63 @@ class DatabaseService extends GetxController {
   }
 
   // Get profile image
-  Stream<String?> getProfileImage(String path) {
+  // Stream<String?> getProfileImage(String path) {
+  //   try {
+  //     Future.delayed(const Duration(milliseconds: 10000));
+  //     return filesCollection.child(path).getDownloadURL().asStream();
+  //   } catch (e) {
+  //     return Stream.value(null);
+  //   }
+  // }
+
+  // Stream<String?> getProfileImage(String path) async* {
+  //   try {
+  //     // Construct the reference to the file
+  //     // Reference ref = filesCollection.child(path);
+  //     firebase_storage.Reference ref = filesCollection.child(path);
+
+  //     // Get the download URL of the file
+  //     print("GOT: HERE");
+  //     print("GOT: $ref");
+  //     String? downloadUrl = await ref.getDownloadURL();
+  //     print("GOT: $downloadUrl");
+
+  //     // Emit the download URL to the stream
+  //     yield downloadUrl;
+  //   } catch (e) {
+  //     // Emit null if there's an error
+  //     yield null;
+  //   }
+  // }
+
+  Stream<String?> getProfileImage(String path) async* {
+    // Create a StreamController
+    StreamController<String?> controller = StreamController<String?>();
+
     try {
-      Future.delayed(const Duration(milliseconds: 3600));
-      return filesCollection.child(path).getDownloadURL().asStream();
+      // Construct the reference to the file
+      firebase_storage.Reference ref =
+          firebase_storage.FirebaseStorage.instance.ref().child(path);
+
+      // Get the download URL of the file
+      String downloadUrl = await ref.getDownloadURL();
+      print("GOT: $downloadUrl");
+
+      // Emit the download URL to the stream
+      controller.add(downloadUrl);
+
+      // Close the stream after emitting the value
+      controller.close();
     } catch (e) {
-      return Stream.value(null);
+      // Emit null if there's an error
+      controller.addError(e);
+
+      // Close the stream in case of error
+      controller.close();
     }
+
+    // Return the stream
+    yield* controller.stream;
   }
 
   // Get a user profile
@@ -113,68 +151,85 @@ class DatabaseService extends GetxController {
   }
 
   //Create user
-  Future createStudentData(
+  Future createAccountData(
     String uid,
     String username,
     String name,
-    String college,
-    String department,
+    String type,
+  ) async {
+    await setImage(uid);
+    return await usersCollection.doc(uid).set(
+      {
+        'username': username,
+        'name': name,
+        'type': type,
+        'isCompleted': false,
+        'dateCreated': FieldValue.serverTimestamp(),
+      },
+    );
+  }
+
+  // Update student profile
+  Future<bool> updateStudentProfile(
+    String uid,
+    String name,
+  ) async {
+    usersCollection.doc(uid).update({
+      "name": name,
+    });
+    return true;
+  }
+
+// Upload Files
+  Future<bool> uploadPDF(String? uid, File file, String fileName) async {
+    filesCollection.child("files/$uid/$fileName").putFile(file);
+    return true;
+  }
+
+  //Upload Questions
+  Future uploadQuestion(
+    String uid,
+    File file,
+    String fileName,
+    String course,
     String session,
-    String type,
+    String semester,
+    String level,
   ) async {
-    await setImage(uid);
-    return await usersCollection.doc(uid).set(
-      {
-        'username': username,
-        'name': name,
-        'college': college,
-        'department': department,
-        'session': session,
-        'type': type,
-        'isCompleted': false,
-        'gender': "",
-        'age': "",
-        'token': "",
-        'dateCreated': FieldValue.serverTimestamp(),
-      },
-    );
+    try {
+      await uploadPDF(uid, file, fileName);
+      await pastQuestionCollection.doc(uid).set(
+        {
+          'course': course,
+          'session': session,
+          'semester': semester,
+          'level': level,
+          'fileName': fileName,
+        },
+      );
+      return true;
+    } catch (e) {
+      return false;
+    }
   }
 
-  //Create user
-  Future createAdminData(
-    String uid,
-    String username,
-    String name,
-    String type,
-  ) async {
-    await setImage(uid);
-    return await usersCollection.doc(uid).set(
-      {
-        'username': username,
-        'name': name,
-        'college': "",
-        'department': "",
-        'session': "",
-        'type': type,
-        'isCompleted': false,
-        'gender': "",
-        'age': "",
-        'token': "",
-        'dateCreated': FieldValue.serverTimestamp(),
-      },
-    );
-  }
-
-  // Get student accounts
-  Stream<List<UserData>> getAccounts(
-      String type, String session, String college) {
-    return usersCollection
-        .where('type', isEqualTo: type)
+  // Get uploaded past question
+  Stream<List<PastQuestions>> getPastQuestions(
+      String session, String semester, String level) {
+    return pastQuestionCollection
         .where('session', isEqualTo: session)
-        .where('college', isEqualTo: college)
-        .orderBy('dateCreated', descending: true)
+        .where('semester', isEqualTo: semester)
+        .where('level', isEqualTo: level)
         .snapshots()
         .map(
+          (snapshot) =>
+              snapshot.docs.map((doc) => PastQuestions.fromJson(doc)).toList(),
+        );
+  }
+
+  // Get uploaded past question
+  Stream<List<UserData>> getUsersAccount(String type) {
+    return usersCollection.snapshots().map(
           (snapshot) =>
               snapshot.docs.map((doc) => UserData.fromJson(doc)).toList(),
         );
@@ -187,6 +242,47 @@ class DatabaseService extends GetxController {
       return url;
     } catch (e) {
       return null;
+    }
+  }
+
+  // Delete Question
+  Future<bool> deletePastQuestion(String questionId, String fileId) async {
+    try {
+      final DocumentReference documentRef =
+          pastQuestionCollection.doc(questionId);
+      final DocumentSnapshot snapshot = await documentRef.get();
+      var ref = filesCollection.child('files/$fileId/');
+
+      if (snapshot.exists) {
+        await documentRef.delete();
+        await ref.delete();
+        return true;
+      } else {
+        return false; // Document with specified ID does not exist
+      }
+    } catch (e) {
+      print("Error deleting past question: $e");
+      return false;
+    }
+  }
+
+  // Delete User
+  Future<bool> deleteUser(String userId) async {
+    try {
+      final DocumentReference documentRef = usersCollection.doc(userId);
+      final DocumentSnapshot snapshot = await documentRef.get();
+      var ref = filesCollection.child(userId);
+
+      if (snapshot.exists) {
+        await documentRef.delete();
+        await ref.delete();
+        return true;
+      } else {
+        return false; // Document with specified ID does not exist
+      }
+    } catch (e) {
+      print("Error deleting user account: $e");
+      return false;
     }
   }
 }

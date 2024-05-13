@@ -1,4 +1,10 @@
 import 'package:e_retrieval/splashScreen.dart';
+import 'package:e_retrieval/views/admin/createAdmin.dart';
+import 'package:e_retrieval/views/admin/createUsers.dart';
+import 'package:e_retrieval/views/admin/student_details.dart';
+import 'package:e_retrieval/views/admin/upload_past_question.dart';
+import 'package:e_retrieval/views/questionList.dart';
+import 'package:e_retrieval/views/reset_password.dart';
 import 'package:get/get.dart';
 
 class Routes {
@@ -11,13 +17,11 @@ class Routes {
 
   // Admin Pages
   static String adminHome = '/adminHome';
-  static String createStudent = '/createStudent';
-  static String scheduleStudent = '/scheduleStudent';
-  static String studentList = '/studentList';
-  static String scheduleList = '/scheduleList';
-  static String uploadTestResult = '/uploadTestResult';
-  static String studentDetails = '/studentDetails';
+  static String uploadQuestion = '/uploadQuestion';
+  static String questionList = '/questionList';
   static String createAdmin = '/createAdmin';
+  static String createUser = '/createUser';
+  static String studentDetails = '/studentDetails';
 }
 
 bool isLogin = true;
@@ -27,44 +31,28 @@ final getPages = [
     name: Routes.splash,
     page: () => const Splash(),
   ),
-  // GetPage(
-  //   name: Routes.studHome,
-  //   page: () => const HomePage(0),
-  // ),
-  // GetPage(
-  //   name: Routes.scheduleStudent,
-  //   page: () => const ScheduleStudent(),
-  // ),
-  // GetPage(
-  //   name: Routes.createStudent,
-  //   page: () => const CreateStudent(),
-  // ),
-  // GetPage(
-  //   name: Routes.studentList,
-  //   page: () => const StudentList(),
-  // ),
-  // GetPage(
-  //   name: Routes.scheduleList,
-  //   page: () => const ScheduleList(),
-  // ),
-  // GetPage(
-  //   name: Routes.resetPassword,
-  //   page: () => const ResetPassword(),
-  // ),
-  // GetPage(
-  //   name: Routes.adminHome,
-  //   page: () => const AdminHomePage(),
-  // ),
-  // GetPage(
-  //   name: Routes.uploadTestResult,
-  //   page: () => const UploadTestResult(),
-  // ),
-  // GetPage(
-  //   name: Routes.studentDetails,
-  //   page: () => const StudentDetailsPage(),
-  // ),
-  // GetPage(
-  //   name: Routes.createAdmin,
-  //   page: () => const CreateAdmin(),
-  // ),
+  GetPage(
+    name: Routes.uploadQuestion,
+    page: () => const UploadPastQuestion(),
+  ),
+  GetPage(
+    name: Routes.questionList,
+    page: () => const GetPastQuestionList(),
+  ),
+    GetPage(
+    name: Routes.resetPassword,
+    page: () => const ResetPassword(),
+  ),
+  GetPage(
+    name: Routes.createUser,
+    page: () => const CreateUser(),
+  ),
+  GetPage(
+    name: Routes.studentDetails,
+    page: () => const StudentDetailsPage(),
+  ),
+  GetPage(
+    name: Routes.createAdmin,
+    page: () => const CreateAdmin(),
+  ),
 ];

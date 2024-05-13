@@ -3,6 +3,8 @@ import 'package:e_retrieval/components/error.dart';
 import 'package:e_retrieval/models/user_data.dart';
 import 'package:e_retrieval/services/database.dart';
 import 'package:e_retrieval/utils/loading.dart';
+import 'package:e_retrieval/views/admin/admin_home.dart';
+import 'package:e_retrieval/views/student/home.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -41,14 +43,14 @@ class _WrapperState extends State<Wrapper> {
               } else if (userData.hasError) {
                 return const ErrorScreen();
               } else {
+                print("USERDATE: $userData");
+                print("USERDATE: ${userData.data}");
                 if (userData.data!.type == 'std') {
                   // route to student page
-                  return Container();
-                  // return const AdminHomePage();
+                  return const HomePage();
                 }
                 //route to admin page
-                  return Container();
-                // return const AdminHomePage();
+                return const AdminHomePage();
               }
             },
           );

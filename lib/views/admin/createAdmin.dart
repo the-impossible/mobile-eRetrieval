@@ -1,81 +1,70 @@
 import 'package:e_retrieval/components/delegatedForm.dart';
 import 'package:e_retrieval/components/delegatedText.dart';
 import 'package:e_retrieval/controller/createAccountController.dart';
+import 'package:e_retrieval/controller/createAdminAccountController.dart';
 import 'package:e_retrieval/utils/constant.dart';
 import 'package:e_retrieval/utils/form_validators.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
-class SignUp extends StatefulWidget {
-  final Function onClicked;
-
-  const SignUp({
+class CreateAdmin extends StatefulWidget {
+  const CreateAdmin({
     super.key,
-    required this.onClicked,
   });
 
   @override
-  State<SignUp> createState() => _SignUpState();
+  State<CreateAdmin> createState() => _CreateAdminState();
 }
 
-class _SignUpState extends State<SignUp> {
-  CreateAccountController createAccountController =
-      Get.put(CreateAccountController());
+class _CreateAdminState extends State<CreateAdmin> {
+  CreateAdminAccount createAdminAccount = Get.put(CreateAdminAccount());
   final _formKey = GlobalKey<FormState>();
 
   @override
   Widget build(BuildContext context) {
     return SafeArea(
       child: Scaffold(
-        backgroundColor: Constants.basicColor,
         appBar: AppBar(
-          elevation: 0,
-          backgroundColor: Constants.basicColor,
-          leading: IconButton(
-            color: Constants.darkColor,
-            onPressed: () {
-              widget.onClicked();
-            },
-            icon: const Icon(
-              Icons.arrow_back,
-              size: 30,
-            ),
+          centerTitle: true,
+          title: DelegatedText(
+            text: "Create Admin Account",
+            fontSize: 20,
+            color: Constants.basicColor,
+            fontName: "InterBold",
           ),
+          leading: IconButton(
+            onPressed: () => Get.back(),
+            icon: const Icon(Icons.arrow_back),
+            color: Constants.basicColor,
+          ),
+          elevation: 0,
+          backgroundColor: Constants.primaryColor,
         ),
+        backgroundColor: Constants.basicColor,
         body: SingleChildScrollView(
           child: Center(
             child: Padding(
               padding: const EdgeInsets.symmetric(
                 horizontal: 20,
+                vertical: 20,
               ),
               child: Form(
                 key: _formKey,
                 child: Column(
                   children: [
-                    Image.asset(
-                      "assets/logo.png",
-                      width: 150,
-                    ),
-                    DelegatedText(
-                      text: "eRETRIEVAL",
-                      fontSize: 20,
-                      fontName: 'InterBold',
-                    ),
                     const SizedBox(height: 10),
                     DelegatedText(
-                      text:
-                          "Let's Get Started!, create an account to access all features!",
+                      text: "fill the form below to create an admin account!",
                       fontSize: 15,
                       fontName: 'InterMed',
                     ),
                     const SizedBox(height: 30),
                     delegatedForm(
-                      fieldName: 'Registration Number',
+                      fieldName: 'Username',
                       icon: Icons.abc,
-                      hintText: 'Enter regNo',
-                      validator: FormValidator.validateUsername,
-                      formController:
-                          createAccountController.usernameController,
+                      hintText: 'Enter username',
+                      validator: FormValidator.validateUser,
+                      formController: createAdminAccount.usernameController,
                       isSecured: false,
                     ),
                     delegatedForm(
@@ -83,7 +72,7 @@ class _SignUpState extends State<SignUp> {
                       icon: Icons.person,
                       hintText: 'Enter full name',
                       validator: FormValidator.validateName,
-                      formController: createAccountController.nameController,
+                      formController: createAdminAccount.nameController,
                       isSecured: false,
                     ),
                     delegatedForm(
@@ -91,8 +80,7 @@ class _SignUpState extends State<SignUp> {
                       icon: Icons.password,
                       hintText: 'Enter password',
                       validator: FormValidator.validatePassword,
-                      formController:
-                          createAccountController.passwordController,
+                      formController: createAdminAccount.passwordController,
                       isSecured: true,
                     ),
                     Padding(
@@ -103,38 +91,16 @@ class _SignUpState extends State<SignUp> {
                         child: ElevatedButton(
                           onPressed: () {
                             if (_formKey.currentState!.validate()) {
-                              createAccountController.createAccount();
+                              createAdminAccount.createAccount("adm");
                             }
                           },
                           style: ElevatedButton.styleFrom(
                               backgroundColor: Constants.primaryColor,
                               shape: RoundedRectangleBorder(
                                   borderRadius: BorderRadius.circular(25))),
-                          child: DelegatedText(text: "Sign up", fontSize: 18),
+                          child:
+                              DelegatedText(text: "Create Admin", fontSize: 18),
                         ),
-                      ),
-                    ),
-                    Padding(
-                      padding: const EdgeInsets.only(bottom: 18.0, top: 10),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          DelegatedText(
-                            text: "Already have an account?",
-                            fontSize: 15,
-                            color: Constants.darkColor,
-                          ),
-                          TextButton(
-                            onPressed: () {
-                              widget.onClicked();
-                            },
-                            child: DelegatedText(
-                              text: "Sign in?",
-                              fontSize: 15,
-                              color: Constants.primaryColor,
-                            ),
-                          ),
-                        ],
                       ),
                     ),
                   ],

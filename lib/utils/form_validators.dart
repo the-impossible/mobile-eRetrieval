@@ -1,4 +1,21 @@
 class FormValidator {
+  static String? validateUsername(String? value) {
+    if (value == null || value.isEmpty) {
+      return 'RegNo is Required!';
+    } else if (value.length < 11 || value.length > 21) {
+      return 'a Valid RegNo is Required!';
+    }
+    return null;
+  }
+  static String? validateUser(String? value) {
+    if (value == null || value.isEmpty) {
+      return 'username is Required!';
+    } else if (value.length < 6 || value.length > 21) {
+      return 'a Valid username is Required!';
+    }
+    return null;
+  }
+
   static String? validateName(String? value) {
     if (value == null || value.isEmpty) {
       return 'Full name is Required!';
@@ -6,7 +23,14 @@ class FormValidator {
     return null;
   }
 
-    static String? validateAge(String? value) {
+  static String? validateCourse(String? value) {
+    if (value == null || value.isEmpty) {
+      return 'Course Title is Required!';
+    }
+    return null;
+  }
+
+  static String? validateAge(String? value) {
     if (value == null || value.isEmpty) {
       return 'Age is Required!';
     }
@@ -35,6 +59,4 @@ class FormValidator {
     }
     return null;
   }
-
- }
-
+}
